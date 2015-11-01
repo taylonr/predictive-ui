@@ -1,5 +1,10 @@
 'use strict';
 
 exports.get = function(req, res){
-	res.json(200);
+	var db = require('../database/neo').db;
+
+	db.query('match (n) return n', function(err, result){
+		res.json(result);
+	});
+
 };

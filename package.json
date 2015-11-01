@@ -7,6 +7,10 @@
     "chai": "^3.4.0",
     "express": "^4.13.3",
     "mocha": "^2.3.3",
+    "requirejs": "^2.1.20",
     "seraph": "^0.14.0"
+  },
+  "devDependencies": {
+    "sinon": "^1.17.2"
   }
 }
