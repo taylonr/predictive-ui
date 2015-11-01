@@ -39,7 +39,7 @@ describe('States controller', function(){
 		it('Should call query to get all nodes', function(){
 			controller.get({}, res);
 
-			expect(query.calledWith('match (n) return n')).to.be.true;
+			expect(query.calledWith('match (n:State) return n')).to.be.true;
 		});
 
 		it('Should get all states', function(){
