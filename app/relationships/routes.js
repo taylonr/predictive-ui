@@ -1,9 +1,11 @@
 (function(){
-'use strict';
+	'use strict';
+
+	var controller = require('./relationship.controller');
 
 	module.exports = function(app){
 		app.route('/relationships')
-			.post()
+			.post(controller.create)
 			.get( function(req, res){
 				var db = require('seraph')({server: 'http://localhost:7474', pass: 'xoZS!lu9%vPDLa4Uq9PbBP0m2'});
 
