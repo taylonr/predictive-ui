@@ -13,38 +13,12 @@
 			res;
 
 		beforeEach(function(){
-			res = {
-				send: function(){}
+			req = {
+				body: {
+					fromNode: {name: 'node1'},
+					toNode: {name: 'node2'}
+				}
 			};
-		})
-
-		describe('When checking existing nodes', function () {
-			beforeEach(function(){
-				sinon.spy(db, 'find');
-				sinon.stub(db, 'save');
-
-				req = {
-					body: {
-						fromNode: {name: 'node1'},
-						toNode: {name: 'node2'}
-					}
-				};
-
-				controller.create(req, res);
-			});
-
-			afterEach(function(){
-				db.find.restore();
-				db.save.restore();
-			});
-
-			it('Should check if node exists', function () {
-				expect(db.find.calledWith({name: 'node1'})).to.be.true;
-			});
-
-			it('Should check if second node exists', function () {
-				expect(db.find.calledWith({name: 'node2'})).to.be.true;
-			});
 		});
 
 		describe('When the first node is not found', function () {
@@ -62,6 +36,7 @@
 
 			it('Should add a new node1', function () {
 				find.withArgs({name: 'node1'}).callsArgWith(1, undefined, []);
+				find.withArgs({name: 'node2'}).callsArgWith(1, undefined, [{name: 'node2', id: 1}]);
 
 				controller.create(req, res);
 
@@ -84,6 +59,7 @@
 
 			it('Should not save the node', function () {
 				find.withArgs({name: 'node1'}).callsArgWith(1, undefined, [{name: 'node1', id: 1}]);
+				find.withArgs({name: 'node2'}).callsArgWith(1, undefined, [{name: 'node2', id: 1}]);
 
 				controller.create(req, res);
 
@@ -106,6 +82,7 @@
 
 			it('Should add a new node1', function () {
 				find.withArgs({name: 'node2'}).callsArgWith(1, undefined, []);
+				find.withArgs({name: 'node1'}).callsArgWith(1, undefined, [{name: 'node1', id: 1}]);
 
 				controller.create(req, res);
 
@@ -132,6 +109,38 @@
 				controller.create(req, res);
 
 				expect(db.save.calledWith({name: 'node2'}, 'State')).to.be.false;
+			});
+		});
+
+		describe('When both nodes are found', function () {
+			var find;
+
+			beforeEach(function(){
+				sinon.stub(db, 'save');
+				find = sinon.stub(db, 'find');
+				sinon.stub(db, 'relate');
+
+			});
+
+			afterEach(function(){
+				db.save.restore();
+				find.restore();
+				db.relate.restore();
+			});
+
+			it('Should create a new relationship', function (done) {
+
+				var res = {
+					sendStatus: function(){
+						done();
+						expect(db.relate.calledWith([1, 'called', 2])).to.be.true;
+					}
+				};
+
+				find.withArgs({name: 'node1'}).callsArgWith(1, undefined, [{name: 'node1', id: 1}]);
+				find.withArgs({name: 'node2'}).callsArgWith(1, undefined, [{name: 'node2', id: 2}]);
+
+				controller.create(req, res);
 			});
 		});
 	});
